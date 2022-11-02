@@ -1,0 +1,107 @@
+$backColor: #dadada;
+$borderColor: black;
+$actionBack: lightskyblue;
+
+html {
+	font-size: 16px;
+	line-height: 16px;
+}
+
+#root {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	max-width: 1000px;
+	background-color: $backColor;
+	border: 3px solid $borderColor;
+	border-radius: 1em;
+	padding: 1em;
+	margin: auto;
+	box-sizing: border-box;
+}
+
+.header, .action-line{
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 2em;
+
+	:first-child {
+		margin-right: .25em;
+	}
+
+	:not(:last-child):not(:first-child) {
+		margin: 0 .5em;
+	}
+
+	:last-child {
+		margin-left: .25em;
+	}
+}
+
+input[type=button], input[type=text] {
+	font-size: 1.25em;
+	border: 2px solid $borderColor;
+	border-radius: .25em;
+	padding: .5em .75em;
+}
+
+.btn {
+	background-color: $actionBack;
+}
+
+.counter {
+	font-size: 1.25em;
+}
+
+.new-value-text-input {
+	flex-grow: 1;
+}
+
+.search-input {
+	flex-grow: 1;
+}
+
+.container-todos {
+	display: flex;
+	flex-direction: column;
+	min-height: 200px;
+	border: 1px dashed $borderColor;
+	align-items: center;
+}
+
+.card-todo {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	width: 80%;
+	margin: .5em;
+	padding: 1.5em;
+	border: 2px solid $borderColor;
+	border-radius: .25em;
+	position: relative;
+
+	.completed-box {
+		width: 30px;
+		aspect-ratio: 1/1;
+	}
+
+	.create-date {
+		position: absolute;
+		bottom: .5em;
+		right: 1.5em;
+		padding: .25em .5em;
+		background-color: white;
+		border-radius: .25em;
+	}
+
+	.close-todo-btn {
+		align-self: flex-start;
+		padding: 0 .75em;
+	}
+
+	.text {
+		width: 70%;
+		max-width: 400px;
+	}
+}
