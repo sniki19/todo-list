@@ -1,4 +1,4 @@
-function generateElement(tagName, options = {}) {
+export const generateElement = (tagName, options = {}) => {
 	let element = document.createElement(tagName)
 
 	let customProperties = [
@@ -9,8 +9,7 @@ function generateElement(tagName, options = {}) {
 		'checked'
 	]
 	for (const prop in options) {
-		if (!prop) {
-			console.warn(`Warning!!! prop: ${prop}`)
+		if (!options[prop]) {
 			continue
 		}
 
@@ -32,7 +31,7 @@ function generateElement(tagName, options = {}) {
 	return element
 }
 
-function generateTextbox(className = '', placeholder = '', value = '') {
+export const generateTextbox = (className = '', value = '', placeholder = '') => {
 	return generateElement('input', {
 		type: 'text',
 		value,
@@ -41,7 +40,7 @@ function generateTextbox(className = '', placeholder = '', value = '') {
 	})
 }
 
-function generateButton(className = '', value = '') {
+export const generateButton = (className = '', value = '') => {
 	return generateElement('input', {
 		type: 'button',
 		value: value,
@@ -49,7 +48,7 @@ function generateButton(className = '', value = '') {
 	})
 }
 
-function generateCheckbox(className = '', checked = false) {
+export const generateCheckbox = (className = '', checked = false) => {
 	return generateElement('input', {
 		type: 'checkbox',
 		checked,
@@ -57,38 +56,24 @@ function generateCheckbox(className = '', checked = false) {
 	})
 }
 
+export const generateCard = props => {
+	const { id, checked, text, date } = props
 
-function generateTextCounter(tagName, value = 0) {
-	return generateElement(tagName, {
-		className: 'counter',
-		innerHTML: value
-	})
-}
-
-function generateTodoCard(data) {
 	const card = generateElement('div', {
-		id: data.id,
+		id,
 		className: 'card-todo',
 	})
 
-	const checkbox = generateCheckbox('completed-box', data.checked)
-	const textbox = generateTextbox('text', '', data.text)
+	const checkbox = generateCheckbox('completed-box', checked)
+	const textbox = generateTextbox('text', text)
+	textbox.readOnly = true
 	const closeBtn = generateButton('btn close-todo-btn', 'x')
 	const dateLabel = generateElement('div', {
 		className: 'create-date',
-		innerHTML: data.date
+		innerHTML: date
 	})
 
 	card.append(checkbox, textbox, closeBtn, dateLabel)
 
 	return card
 }
-
-export {
-	generateElement,
-	generateTextbox,
-	generateButton,
-	generateTextCounter,
-	generateTodoCard
-}
-

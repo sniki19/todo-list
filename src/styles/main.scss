@@ -46,8 +46,21 @@ input[type=button], input[type=text] {
 	padding: .5em .75em;
 }
 
-.btn {
+input[type=button].btn {
 	background-color: $actionBack;
+
+	&:hover, &:active {
+		box-shadow: inset 1px 1px 10px $borderColor;
+	}
+
+	&:active {
+		border-color: $actionBack;
+	}
+}
+
+input[type=text]:focus {
+	border: none;
+	outline: 2px solid $actionBack;
 }
 
 .counter {
@@ -103,5 +116,17 @@ input[type=button], input[type=text] {
 	.text {
 		width: 70%;
 		max-width: 400px;
+	}
+
+	&.completed {
+		background-color: gray;
+
+		.text {
+			text-decoration: line-through;
+		}
+	}
+
+	&.hidden {
+		display: none;
 	}
 }

@@ -1,186 +1,149 @@
 import { Counter } from './modules/counter'
-import {
-	generateButton,
-	generateElement,
-	generateTextbox,
-	generateTodoCard
-} from './modules/render-templates'
+import { DataBase } from './modules/database'
+import { generateButton, generateElement, generateTextbox } from './modules/render-templates'
+import { generateTodoData, todoCardComlete, todoCardHide, TodoItem } from './modules/todo-item'
 
+const db = new DataBase()
 const localStorageDataKey = 'TODO-LIST'
-const root = document.getElementById('root')
-
-let database = []
-
-/* Header section */
-
-const header = generateElement('div', {
-	id: 'header',
-	className: 'header'
-})
 
 const deleteAllBtn = generateButton('btn delete-all-btn', 'Delete All')
 const deleteLastBtn = generateButton('btn delete-last-btn', 'Delete Last')
-const enterNewTodoTextInput = generateTextbox('new-value-text-input', 'Enter todo...')
+const enterNewTodoTextInput = generateTextbox('new-value-text-input', '', 'Enter todo...')
 const addNewTodoBtn = generateButton('btn add-btn', 'Add')
-
-header.append(deleteAllBtn, deleteLastBtn, enterNewTodoTextInput, addNewTodoBtn)
-
-/* Action line: Counters, Filters, Search */
-
-const actionLine = generateElement('div', {
-	id: 'actionLine',
-	className: 'action-line'
-})
-
-const showAllBtn = generateButton('btn show-all-btn', 'Show All')
-const showCompletedBtn = generateButton('btn show-completed-btn', 'Show Completed')
-const searchTextInput = generateTextbox('search-input', 'Search...')
 
 const allCounter = new Counter('div', 'All: ')
 const completedCounter = new Counter('div', 'Completed: ')
-
-actionLine.append(
-	allCounter.render(),
-	completedCounter.render(),
-	showAllBtn,
-	showCompletedBtn,
-	searchTextInput
-)
-
-/* Content Area */
+const showAllBtn = generateButton('btn show-all-btn', 'Show All')
+const showCompletedBtn = generateButton('btn show-completed-btn', 'Show Completed')
+const searchTextInput = generateTextbox('search-input', '', 'Search...')
 
 const todoContainer = generateElement('div', {
+	id: 'todoCardContainer',
 	className: 'container-todos'
 })
 
+;(function init() {
+	const header = generateElement('div', {
+		id: 'header',
+		className: 'header',
+	})
+	header.append(deleteAllBtn, deleteLastBtn, enterNewTodoTextInput, addNewTodoBtn)
 
-/* Main */
+	const actionLine = generateElement('div', {
+		id: 'actionLine',
+		className: 'action-line'
+	})
+	actionLine.append(allCounter.render(), completedCounter.render(), showAllBtn, showCompletedBtn, searchTextInput)
 
-root.append(header, actionLine, todoContainer)
+	root.append(header, actionLine, todoContainer)
+})()
 
-function deleteAllTodosHandler() {
-	todoContainer.innerHTML = null
-	database = []
+
+const renderNewTodoCard = data => {
+	const todo = new TodoItem(data)
+	db.push(todo)
+
+	const todoCard = todo.render()
+	todoCardComlete(todoCard, todo.checkState)
+
+	todoContainer.appendChild(todoCard)
 }
 
-function deleteLastTodoHandler() {
-	if (!todoContainer.hasChildNodes()) {
-		alert('Todo not exists')
+const handleDeleteAllTodoCards = () => {
+	todoContainer.innerHTML = null
+	db.clean()
+}
+
+const handleDeleteLastTodoCard = () => {
+	const visibleCollection = todoContainer.querySelectorAll('.card-todo:not(.hidden)')
+	if (!visibleCollection.length) {
 		return
 	}
 
-	let lastChild = todoContainer.lastChild
-	database = database.filter(todo => todo.id !== +lastChild.id)
-	lastChild.remove()
+	const lastChild = visibleCollection[visibleCollection.length - 1]
+	if (db.remove(lastChild.id)) {
+		lastChild.remove()
+	}
 }
 
-const updateCountersHandler = () => {
-	const allTodos = database.length
-	const completedTodos = database.filter(todo => todo.checked).length
+const handleUpdateCounters = () => {
+	const allTodos = db.length
+	const completedTodos = db.getFiltered(todo => todo.checkState).length
 
 	allCounter.updateValue(allTodos)
 	completedCounter.updateValue(completedTodos)
 }
 
-function containerHandler(event) {
+const handleAddNewTodoCard = () => {
+	const data = generateTodoData(enterNewTodoTextInput.value)
+	enterNewTodoTextInput.value = null
+
+	renderNewTodoCard(data)
+}
+
+const handleShowAllTodos = () => {
+	searchTextInput.value = null
+	db.getAll().forEach(todo => todoCardHide(todo.card, false))
+}
+
+const handleShowCompletedTodos = () => {
+	searchTextInput.value = null
+	db.getAll().forEach(todo => todoCardHide(todo.card, !todo.checkState))
+}
+
+const handleShowTodosWithSearchValue = (event) => {
+	const searchStr = event.target.value
+	db.getAll().forEach(todo => todoCardHide(todo.card, !todo.data.text.includes(searchStr)))
+}
+
+const handleTodoContainer = (event) => {
 	const target = event.target
 	const todoCard = target.parentElement
-	const id = +todoCard.id
+	const todoId = todoCard.id
 
 	if (target.classList.contains('completed-box')) {
-		if (target.checked) {
-			todoCard.classList.add('completed')
-		} else {
-			todoCard.classList.remove('completed')
-		}
-
-		const todoData = database.find(todo => todo.id === id)
-		todoData.checked = target.checked
+		db.put(todoId, {
+			checked: target.checked
+		})
+		todoCardComlete(todoCard, target.checked)
 	}
 
 	if (target.classList.contains('close-todo-btn')) {
-		database = database.filter(todo => todo.id !== id)
+		db.remove(todoId)
 		todoCard.remove()
 	}
 }
 
-function addNewTodoHandler() {
-	const data = {
-		id: Date.now(),
-		checked: false,
-		text: enterNewTodoTextInput.value,
-		date: new Date().toLocaleDateString()
-	}
-	const card = generateTodoCard(data)
-
-	enterNewTodoTextInput.value = null
-	database.push(data)
-	todoContainer.appendChild(card)
-}
-
-function showAllTodosHandler() {
-	searchTextInput.value = null
-	clearTodoContainer()
-	renderTodos(database)
-}
-
-function showCompletedTodosHandler() {
-	searchTextInput.value = null
-	clearTodoContainer()
-	renderTodos(database.filter(todo => todo.checked))
-}
-
-function showTodosWithSearchValueHandler(e) {
-	clearTodoContainer()
-	const searchStr = e.target.value
-	renderTodos(database.filter(todo => todo.text.includes(searchStr)))
-}
-
-function clearTodoContainer() {
-	todoContainer.innerHTML = null
-}
-
-const renderTodos = data => {
-	data.forEach(todo => {
-		const card = generateTodoCard(todo)
-		todoContainer.appendChild(card)
-	})
-	updateCountersHandler()
-}
-
 const loadDataFromLocalStorage = () => {
 	const storageData = localStorage.getItem(localStorageDataKey)
-	database = JSON.parse(storageData)
+	const todoList = JSON.parse(storageData)
 
-	if (!database) {
-		database = []
-	}
-
-	renderTodos(database)
+	todoList.forEach(renderNewTodoCard)
 }
 
 const saveDataInLocalStorage = () => {
-	localStorage.setItem(localStorageDataKey, JSON.stringify(database))
+	let data = db.getAll().map(todo => todo.data)
+	localStorage.setItem(localStorageDataKey, JSON.stringify(data))
 }
 
 
-deleteAllBtn.addEventListener('click', deleteAllTodosHandler)
-deleteAllBtn.addEventListener('click', updateCountersHandler)
+deleteAllBtn.addEventListener('click', handleDeleteAllTodoCards)
+deleteAllBtn.addEventListener('click', handleUpdateCounters)
 
-deleteLastBtn.addEventListener('click', deleteLastTodoHandler)
-deleteLastBtn.addEventListener('click', updateCountersHandler)
+deleteLastBtn.addEventListener('click', handleDeleteLastTodoCard)
+deleteLastBtn.addEventListener('click', handleUpdateCounters)
 
-addNewTodoBtn.addEventListener('click', addNewTodoHandler)
-addNewTodoBtn.addEventListener('click', updateCountersHandler)
+addNewTodoBtn.addEventListener('click', handleAddNewTodoCard)
+addNewTodoBtn.addEventListener('click', handleUpdateCounters)
 
-showAllBtn.addEventListener('click', showAllTodosHandler)
-showCompletedBtn.addEventListener('click', showCompletedTodosHandler)
-searchTextInput.addEventListener('keyup', showTodosWithSearchValueHandler)
+showAllBtn.addEventListener('click', handleShowAllTodos)
+showCompletedBtn.addEventListener('click', handleShowCompletedTodos)
+searchTextInput.addEventListener('keyup', handleShowTodosWithSearchValue)
 
-todoContainer.addEventListener('click', containerHandler)
-todoContainer.addEventListener('click', updateCountersHandler)
+todoContainer.addEventListener('click', handleTodoContainer)
+todoContainer.addEventListener('click', handleUpdateCounters)
 
 window.addEventListener('load', loadDataFromLocalStorage)
-window.addEventListener('load', updateCountersHandler)
+window.addEventListener('load', handleUpdateCounters)
 
 window.addEventListener('beforeunload', saveDataInLocalStorage)
