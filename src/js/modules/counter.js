@@ -9,20 +9,19 @@ export function Counter(tagName = 'div', text = '', defaultValue = 0, className 
 		innerHTML: getCounterContent(text, currentValue)
 	})
 
-	return {
-		get value() {
-			return currentValue
-		},
-		updateValue: value => {
-			if (value !== currentValue) {
-				currentValue = value
-				element.innerHTML = getCounterContent(text, currentValue)
-			}
-		},
-		increaseValue: (number = 1) => {
-			currentValue += number
+	Object.defineProperty(this, 'value', {
+		'get': () => currentValue
+	})
+
+	this.updateValue = value => {
+		if (value !== currentValue) {
+			currentValue = value
 			element.innerHTML = getCounterContent(text, currentValue)
-		},
-		render: () => element,
+		}
 	}
+	this.increaseValue = (number = 1) => {
+		currentValue += number
+		element.innerHTML = getCounterContent(text, currentValue)
+	}
+	this.render = () => element
 }

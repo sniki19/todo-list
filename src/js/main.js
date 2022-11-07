@@ -1,9 +1,9 @@
 import { Counter } from './modules/counter'
-import { DataBase } from './modules/database'
+import { DataStore } from './modules/data-store'
 import { generateButton, generateElement, generateTextbox } from './modules/render-templates'
 import { generateTodoData, todoCardComlete, todoCardHide, TodoItem } from './modules/todo-item'
 
-const db = new DataBase()
+const dataStore = new DataStore()
 const localStorageDataKey = 'TODO-LIST'
 
 const deleteAllBtn = generateButton('btn delete-all-btn', 'Delete All')
@@ -41,7 +41,7 @@ const todoContainer = generateElement('div', {
 
 const renderNewTodoCard = data => {
 	const todo = new TodoItem(data)
-	db.push(todo)
+	dataStore.push(todo)
 
 	const todoCard = todo.render()
 	todoCardComlete(todoCard, todo.checkState)
@@ -51,7 +51,7 @@ const renderNewTodoCard = data => {
 
 const handleDeleteAllTodoCards = () => {
 	todoContainer.innerHTML = null
-	db.clean()
+	dataStore.clean()
 }
 
 const handleDeleteLastTodoCard = () => {
@@ -61,14 +61,14 @@ const handleDeleteLastTodoCard = () => {
 	}
 
 	const lastChild = visibleCollection[visibleCollection.length - 1]
-	if (db.remove(lastChild.id)) {
+	if (dataStore.remove(lastChild.id)) {
 		lastChild.remove()
 	}
 }
 
 const handleUpdateCounters = () => {
-	const allTodos = db.length
-	const completedTodos = db.getFiltered(todo => todo.checkState).length
+	const allTodos = dataStore.length
+	const completedTodos = dataStore.getFiltered(todo => todo.checkState).length
 
 	allCounter.updateValue(allTodos)
 	completedCounter.updateValue(completedTodos)
@@ -83,17 +83,17 @@ const handleAddNewTodoCard = () => {
 
 const handleShowAllTodos = () => {
 	searchTextInput.value = null
-	db.getAll().forEach(todo => todoCardHide(todo.card, false))
+	dataStore.getAll().forEach(todo => todoCardHide(todo.card, false))
 }
 
 const handleShowCompletedTodos = () => {
 	searchTextInput.value = null
-	db.getAll().forEach(todo => todoCardHide(todo.card, !todo.checkState))
+	dataStore.getAll().forEach(todo => todoCardHide(todo.card, !todo.checkState))
 }
 
 const handleShowTodosWithSearchValue = (event) => {
 	const searchStr = event.target.value
-	db.getAll().forEach(todo => todoCardHide(todo.card, !todo.data.text.includes(searchStr)))
+	dataStore.getAll().forEach(todo => todoCardHide(todo.card, !todo.data.text.includes(searchStr)))
 }
 
 const handleTodoContainer = (event) => {
@@ -102,14 +102,14 @@ const handleTodoContainer = (event) => {
 	const todoId = todoCard.id
 
 	if (target.classList.contains('completed-box')) {
-		db.put(todoId, {
+		dataStore.update(todoId, {
 			checked: target.checked
 		})
 		todoCardComlete(todoCard, target.checked)
 	}
 
 	if (target.classList.contains('close-todo-btn')) {
-		db.remove(todoId)
+		dataStore.remove(todoId)
 		todoCard.remove()
 	}
 }
@@ -122,7 +122,7 @@ const loadDataFromLocalStorage = () => {
 }
 
 const saveDataInLocalStorage = () => {
-	let data = db.getAll().map(todo => todo.data)
+	let data = dataStore.getAll().map(todo => todo.data)
 	localStorage.setItem(localStorageDataKey, JSON.stringify(data))
 }
 

@@ -1,7 +1,7 @@
 import { isObject } from './tools'
 
-export function DataBase() {
-	source = []
+const getInstance = function() {
+	let source = []
 
 	return {
 		push: item => {
@@ -18,16 +18,10 @@ export function DataBase() {
 			source = newSource
 			return itemWasDeleted
 		},
-		getAll: () => {
-			return [...source]
-		},
-		getFiltered: filter => {
-			return [...source.filter(filter)]
-		},
-		getById: id => {
-			return {...source.find(item => item.id === id)}
-		},
-		put: (id, data) => {
+		getAll: () => ([...source]),
+		getFiltered: filter => ([...source.filter(filter)]),
+		getById: id => ({ ...source.find(item => item.id === id) }),
+		update: (id, data) => {
 			if (!isObject(data) && id) {
 				return false
 			}
@@ -49,3 +43,19 @@ export function DataBase() {
 		}
 	}
 }
+
+export const DataStore = (() => {
+	let instance = null
+
+	return function() {
+		if (!new.target) {
+			throw new Error('`Singleton()` must be called with `new`')
+		}
+
+		if (!instance) {
+			instance = getInstance()
+		}
+
+		return instance
+	}
+})()
