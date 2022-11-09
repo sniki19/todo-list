@@ -1,48 +1,10 @@
+import createButtonComponent from './components/buttonComponent'
 import { Counter } from './modules/counter'
-import { DataStore } from './modules/data-store'
-import { generateButton, generateElement, generateTextbox } from './modules/render-templates'
 import { generateTodoData, todoCardComlete, todoCardHide, TodoItem } from './modules/todo-item'
+import initStore from './services/data-api'
+import { generateButton, generateElement, generateTextbox } from './utils/render-templates'
 
-const dataStore = new DataStore()
-const localStorageDataKey = 'TODO-LIST'
-
-const deleteAllBtn = generateButton('btn delete-all-btn', 'Delete All')
-const deleteLastBtn = generateButton('btn delete-last-btn', 'Delete Last')
-const enterNewTodoTextInput = generateTextbox('new-value-text-input', '', 'Enter todo...')
-const addNewTodoBtn = generateButton('btn add-btn', 'Add')
-
-const allCounter = new Counter('div', 'All: ')
-const completedCounter = new Counter('div', 'Completed: ')
-const showAllBtn = generateButton('btn show-all-btn', 'Show All')
-const showCompletedBtn = generateButton('btn show-completed-btn', 'Show Completed')
-const searchTextInput = generateTextbox('search-input', '', 'Search...')
-
-const todoContainer = generateElement('div', {
-	id: 'todoCardContainer',
-	className: 'container-todos'
-})
-
-;(function init() {
-	const header = generateElement('div', {
-		id: 'header',
-		className: 'header',
-	})
-	header.append(deleteAllBtn, deleteLastBtn, enterNewTodoTextInput, addNewTodoBtn)
-
-	const actionLine = generateElement('div', {
-		id: 'actionLine',
-		className: 'action-line'
-	})
-	actionLine.append(allCounter.render(), completedCounter.render(), showAllBtn, showCompletedBtn, searchTextInput)
-
-	root.append(header, actionLine, todoContainer)
-})()
-
-
-const renderNewTodoCard = data => {
-	const todo = new TodoItem(data)
-	dataStore.push(todo)
-
+const renderNewTodoCard = todo => {
 	const todoCard = todo.render()
 	todoCardComlete(todoCard, todo.checkState)
 
@@ -66,7 +28,7 @@ const handleDeleteLastTodoCard = () => {
 	}
 }
 
-const handleUpdateCounters = () => {
+const handleUpdateCounters = (e, store) => {
 	const allTodos = dataStore.length
 	const completedTodos = dataStore.getFiltered(todo => todo.checkState).length
 
@@ -78,7 +40,9 @@ const handleAddNewTodoCard = () => {
 	const data = generateTodoData(enterNewTodoTextInput.value)
 	enterNewTodoTextInput.value = null
 
-	renderNewTodoCard(data)
+	const todo = new TodoItem(data)
+	dataStore.add(todo)
+	renderNewTodoCard(todo)
 }
 
 const handleShowAllTodos = () => {
@@ -114,24 +78,57 @@ const handleTodoContainer = (event) => {
 	}
 }
 
-const loadDataFromLocalStorage = () => {
-	const storageData = localStorage.getItem(localStorageDataKey)
-	const todoList = JSON.parse(storageData)
-
-	todoList.forEach(renderNewTodoCard)
+const handleRenderAllTodoCards = (e, store) => {
+	store.getAll().forEach(item => renderNewTodoCard(item))
 }
 
-const saveDataInLocalStorage = () => {
-	let data = dataStore.getAll().map(todo => todo.data)
-	localStorage.setItem(localStorageDataKey, JSON.stringify(data))
-}
+const dataStore = initStore({
+	onLoad: [handleRenderAllTodoCards, handleUpdateCounters],
+	onSave: true,
+	dataToInstanceMapper: data => new TodoItem(data),
+	instanceToDataMapper: instance => instance.data
+})
 
+const deleteAllBtn = createButtonComponent({
+	className: 'btn delete-all-btn',
+	value: 'Delete All',
+	onClick: [handleDeleteAllTodoCards, handleUpdateCounters]
+})
+const deleteLastBtn = createButtonComponent({
+	className: 'btn delete-last-btn',
+	value: 'Delete Last',
+	onClick: [handleDeleteLastTodoCard, handleUpdateCounters]
+})
+const enterNewTodoTextInput = generateTextbox('new-value-text-input', '', 'Enter todo...')
+const addNewTodoBtn = generateButton('btn add-btn', 'Add')
 
-deleteAllBtn.addEventListener('click', handleDeleteAllTodoCards)
-deleteAllBtn.addEventListener('click', handleUpdateCounters)
+const allCounter = new Counter('div', 'All: ')
+const completedCounter = new Counter('div', 'Completed: ')
+const showAllBtn = generateButton('btn show-all-btn', 'Show All')
+const showCompletedBtn = generateButton('btn show-completed-btn', 'Show Completed')
+const searchTextInput = generateTextbox('search-input', '', 'Search...')
 
-deleteLastBtn.addEventListener('click', handleDeleteLastTodoCard)
-deleteLastBtn.addEventListener('click', handleUpdateCounters)
+const todoContainer = generateElement('div', {
+	id: 'todoCardContainer',
+	className: 'container-todos'
+})
+
+;(function init() {
+	const header = generateElement('div', {
+		id: 'header',
+		className: 'header',
+	})
+	header.append(deleteAllBtn, deleteLastBtn, enterNewTodoTextInput, addNewTodoBtn)
+
+	const actionLine = generateElement('div', {
+		id: 'actionLine',
+		className: 'action-line'
+	})
+	actionLine.append(allCounter.render(), completedCounter.render(), showAllBtn, showCompletedBtn, searchTextInput)
+
+	root.append(header, actionLine, todoContainer)
+})()
+
 
 addNewTodoBtn.addEventListener('click', handleAddNewTodoCard)
 addNewTodoBtn.addEventListener('click', handleUpdateCounters)
@@ -142,8 +139,3 @@ searchTextInput.addEventListener('keyup', handleShowTodosWithSearchValue)
 
 todoContainer.addEventListener('click', handleTodoContainer)
 todoContainer.addEventListener('click', handleUpdateCounters)
-
-window.addEventListener('load', loadDataFromLocalStorage)
-window.addEventListener('load', handleUpdateCounters)
-
-window.addEventListener('beforeunload', saveDataInLocalStorage)

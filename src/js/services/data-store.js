@@ -1,10 +1,13 @@
-import { isObject } from './tools'
+import { isObject } from '../utils/tools'
 
-const getInstance = function() {
+const getInstance = () => {
 	let source = []
 
 	return {
-		push: item => {
+		getAll: () => ([...source]),
+		getFiltered: filter => ([...source.filter(filter)]),
+		getById: id => ({ ...source.find(item => item.id === id) }),
+		add: item => {
 			if (!isObject(item) && item.id) {
 				return false
 			}
@@ -12,15 +15,6 @@ const getInstance = function() {
 			source.push(item)
 			return this
 		},
-		remove: id => {
-			const newSource = source.filter(item => item.id !== id)
-			const itemWasDeleted = source.length !== newSource.length
-			source = newSource
-			return itemWasDeleted
-		},
-		getAll: () => ([...source]),
-		getFiltered: filter => ([...source.filter(filter)]),
-		getById: id => ({ ...source.find(item => item.id === id) }),
 		update: (id, data) => {
 			if (!isObject(data) && id) {
 				return false
@@ -33,6 +27,12 @@ const getInstance = function() {
 
 			target.update(data)
 			return true
+		},
+		remove: id => {
+			const newSource = source.filter(item => item.id !== id)
+			const itemWasDeleted = source.length !== newSource.length
+			source = newSource
+			return itemWasDeleted
 		},
 		clean: () => {
 			source = []
