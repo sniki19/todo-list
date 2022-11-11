@@ -1,4 +1,4 @@
-import { generateElement } from '../utils/render-templates'
+import { generateElement } from '../utils/renderTemplates'
 
 const getCounterContent = (text, value) => text ? `${text} ${value}` : value
 

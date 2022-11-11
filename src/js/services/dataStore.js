@@ -1,9 +1,10 @@
 import { isObject } from '../utils/tools'
 
-const getInstance = () => {
+const getInstance = (name) => {
 	let source = []
 
 	return {
+		name: name,
 		getAll: () => ([...source]),
 		getFiltered: filter => ([...source.filter(filter)]),
 		getById: id => ({ ...source.find(item => item.id === id) }),
@@ -15,17 +16,21 @@ const getInstance = () => {
 			source.push(item)
 			return this
 		},
-		update: (id, data) => {
-			if (!isObject(data) && id) {
+		update: (data) => {
+			if (!isObject(data) && data.id) {
 				return false
 			}
 
-			let target = source.find(item => item.id === id)
+			let target = source.find(item => item.id === data.id)
 			if (!target) {
 				return false
 			}
 
-			target.update(data)
+			for (const prop in data) {
+				if (prop !== 'id') {
+					target[prop] = data[prop]
+				}
+			}
 			return true
 		},
 		remove: id => {
@@ -47,13 +52,13 @@ const getInstance = () => {
 export const DataStore = (() => {
 	let instance = null
 
-	return function() {
+	return function(name) {
 		if (!new.target) {
 			throw new Error('`Singleton()` must be called with `new`')
 		}
 
 		if (!instance) {
-			instance = getInstance()
+			instance = getInstance(name)
 		}
 
 		return instance

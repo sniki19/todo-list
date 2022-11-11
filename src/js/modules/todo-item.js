@@ -1,4 +1,4 @@
-import { generateCard } from '../utils/render-templates'
+import { generateCard } from '../utils/renderTemplates'
 import { uid } from '../utils/tools'
 
 export const generateTodoData = text => ({
