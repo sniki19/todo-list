@@ -1,20 +1,33 @@
+import { store } from '../services/dataApi'
 import { generateElement } from '../utils/renderTemplates'
 import {
 	createButtonComponent,
-	createCheckboxComponent, createContainerComponent, createTextboxComponent
+	createCheckboxComponent,
+	createContainerComponent,
+	createTextboxComponent
 } from './shared'
 
-const render = props => {
+export const createTodoItemComponent = props => {
 	const { id, checked, text, date } = props
 
 	const card = createContainerComponent({
 		id,
-		className: 'card-todo'
+		className: checked ? 'card-todo completed' : 'card-todo'
 	})
 
 	const checkbox = createCheckboxComponent({
 		className: 'checked-box',
-		checked
+		checked,
+		disabled: checked,
+		onChange: () => {
+			store.update({
+				id,
+				checked: true
+			})
+
+			checkbox.disabled = true
+			card.classList.add('completed')
+		}
 	})
 
 	const textbox = createTextboxComponent({
@@ -25,7 +38,11 @@ const render = props => {
 
 	const closeBtn = createButtonComponent({
 		className: 'btn close-todo-btn',
-		value: 'x'
+		value: 'x',
+		onClick: () => {
+			store.delete(id)
+			card.remove()
+		}
 	})
 
 	const dateLabel = generateElement('div', {
@@ -36,8 +53,4 @@ const render = props => {
 	card.append(checkbox, textbox, closeBtn, dateLabel)
 
 	return card
-}
-
-export const createTodoItemComponent = (props) => {
-	return render(props)
 }

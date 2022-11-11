@@ -1,26 +1,36 @@
-import { DataStore } from './dataStore'
+import { uid } from '../utils/tools'
+import { createStoreInstance } from './dataStore'
 
 const localStorageDataKey = 'TODO-LIST'
+const store = createStoreInstance('dataApiJs')
 
-export const getApi = (props = {}) => {
-	const { name } = props
-	const store = new DataStore(name)
+export const generateNewTodoData = text => ({
+	id: uid(),
+	checked: false,
+	text: text,
+	date: new Date().toLocaleDateString()
+})
 
-	// window.addEventListener('load', () => {
-	// 	const storageData = localStorage.getItem(localStorageDataKey)
-	// 	const dataList = JSON.parse(storageData) || []
+export const initStore = () => {
+	const storageData = localStorage.getItem(localStorageDataKey)
+	const data = JSON.parse(storageData) || []
 
-	// 	dataList.forEach(data => store.add(data))
-	// })
+	if (data.length) {
+		data.forEach(item => store.add(item))
+	}
+}
 
-	// window.addEventListener('beforeunload', () => {
-	// 	if (!store.length) {
-	// 		localStorage.setItem(localStorageDataKey, '[]')
-	// 		return
-	// 	}
+export const saveInStorage = () => {
+	const data = store.getAll()
 
-	// 	localStorage.setItem(localStorageDataKey,  JSON.stringify(store.getAll()))
-	// })
+	if (!data.length) {
+		localStorage.setItem(localStorageDataKey, '[]')
+		return
+	}
 
-	return store
+	localStorage.setItem(localStorageDataKey, JSON.stringify(data))
+}
+
+export {
+	store
 }

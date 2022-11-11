@@ -36,19 +36,30 @@ export const todoItemListContainerComponent = (props = {}) => {
 		})
 	}
 
-	const addNewTodoItem = data => {
+	const addNewItem = data => {
 		const element = createTodoItemComponent(data)
 		container.append(element)
+
+		if (data.checked) {
+			element.disabled = true
+			element.classList.add('completed')
+		}
 	}
-	const deleteTodoItem = id => {
+
+	const deleteItem = id => {
 		let findElement = container.querySelector(`#${id}`)
 		findElement.remove()
 	}
 
+	const clean = () => {
+		container.innerHTML = null
+	}
+
 	return [
 		container,
-		addNewTodoItem,
-		deleteTodoItem,
-		filterCards
+		addNewItem,
+		deleteItem,
+		filterCards,
+		clean
 	]
 }

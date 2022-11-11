@@ -1,9 +1,6 @@
-import { uid } from '../utils/tools'
 import { createButtonComponent, createContainerComponent, createTextboxComponent } from './shared'
 
-const render = props => {
-	const { id = uid(), className, onAdd } = props
-
+export const todoItemAddFormComponent = onAddClick => {
 	const enterNewTextInput = createTextboxComponent({
 		className: 'new-value-text-input',
 		placeholder: 'Enter todo...'
@@ -16,21 +13,16 @@ const render = props => {
 			e.preventDefault()
 			const text = enterNewTextInput.value
 			enterNewTextInput.value = null
-			onAdd(e, text)
+			onAddClick(text)
 		}
 	})
 
 	const form = createContainerComponent({
 		tagName: 'form',
-		id,
-		className,
+		id: 'addNewTodoCardForm',
+		classNam: 'add-form',
 		children: [enterNewTextInput, addNewItemBtn]
 	})
-	return form
-}
-
-export const todoItemAddFormComponent = (props = {}) => {
-	const form = render(props)
 
 	return form
 }

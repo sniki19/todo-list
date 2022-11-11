@@ -1,19 +1,12 @@
 import { getApi } from '../services/dataApi'
 import { createTodoFiltersComponent } from './filters'
-import { createTodoCountersComponent } from './todoCounters'
 import { createContainerComponent } from './shared'
+import { createTodoCountersComponent } from './todoCounters'
 
 const render = (props) => {
 	const { dataApi, setFilterForCards } = props
 
-	const [counterForm, updateCounters] = createTodoCountersComponent()
-
-	const setNewCountersValue = () => {
-		const allTodos = dataApi.length
-		const completedTodos = dataApi.getFiltered(todo => todo.checked).length
-
-		updateCounters(allTodos, completedTodos)
-	}
+	const [counterForm] = createTodoCountersComponent()
 
 	const filters = createTodoFiltersComponent({
 		onChange: (filter) => {
@@ -28,7 +21,7 @@ const render = (props) => {
 		children: [counterForm, filters]
 	})
 
-	return [actionLine2, setNewCountersValue]
+	return actionLine2
 }
 
 export const createActionLine2Component = (props) => {

@@ -1,7 +1,8 @@
 import { isObject } from '../utils/tools'
 
-const getInstance = (name) => {
+export const createStoreInstance = (name) => {
 	let source = []
+	console.warn('New store instance: ' + name)
 
 	return {
 		name: name,
@@ -33,7 +34,7 @@ const getInstance = (name) => {
 			}
 			return true
 		},
-		remove: id => {
+		delete: id => {
 			const newSource = source.filter(item => item.id !== id)
 			const itemWasDeleted = source.length !== newSource.length
 			source = newSource
@@ -41,7 +42,7 @@ const getInstance = (name) => {
 		},
 		clean: () => {
 			source = []
-			return this
+			return true
 		},
 		get length() {
 			return source.length
@@ -49,18 +50,15 @@ const getInstance = (name) => {
 	}
 }
 
-export const DataStore = (() => {
-	let instance = null
+// export const dataStore = (() => {
+// 	let instance = null
 
-	return function(name) {
-		if (!new.target) {
-			throw new Error('`Singleton()` must be called with `new`')
-		}
-
-		if (!instance) {
-			instance = getInstance(name)
-		}
-
-		return instance
-	}
-})()
+// 	return {
+//         getInstance: (name) => {
+//             if (!instance) {
+//                 instance = createInstance(name)
+//             }
+//             return instance
+//         }
+//     }
+// })()
