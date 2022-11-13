@@ -4,6 +4,7 @@ $actionBack: lightskyblue;
 
 html {
 	font-size: 16px;
+	font-family: Arial, Helvetica, sans-serif;
 	line-height: 16px;
 }
 
@@ -20,7 +21,34 @@ html {
 	box-sizing: border-box;
 }
 
-.header, .action-line{
+input[type=button],
+input[type=text] {
+	font-size: 1.25em;
+	border: 2px solid $borderColor;
+	border-radius: .25em;
+	padding: .5em .75em;
+}
+
+input[type=button].btn {
+	background-color: $actionBack;
+
+	&:hover,
+	&:active {
+		box-shadow: inset 1px 1px 10px $borderColor;
+	}
+
+	&:active {
+		border-color: $actionBack;
+	}
+}
+
+input[type=text]:focus {
+	border: none;
+	outline: 2px solid $actionBack;
+}
+
+.header,
+.action-line {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
@@ -39,34 +67,6 @@ html {
 	}
 }
 
-input[type=button], input[type=text] {
-	font-size: 1.25em;
-	border: 2px solid $borderColor;
-	border-radius: .25em;
-	padding: .5em .75em;
-}
-
-input[type=button].btn {
-	background-color: $actionBack;
-
-	&:hover, &:active {
-		box-shadow: inset 1px 1px 10px $borderColor;
-	}
-
-	&:active {
-		border-color: $actionBack;
-	}
-}
-
-input[type=text]:focus {
-	border: none;
-	outline: 2px solid $actionBack;
-}
-
-.counter {
-	font-size: 1.25em;
-}
-
 .add-form {
 	display: flex;
 	flex-grow: 1;
@@ -76,62 +76,73 @@ input[type=text]:focus {
 	}
 }
 
-.search-input {
-	flex-grow: 1;
+.counter-list {
+	display: flex;
+	font-size: 1.25em;
 }
 
-.container-todos {
+.filters {
+	display: flex;
+	flex-grow: 1;
+
+	.search-input {
+		flex-grow: 1;
+	}
+}
+
+.todo-data-container {
 	display: flex;
 	flex-direction: column;
-	min-height: 200px;
+	min-height: 15em;
 	border: 1px dashed $borderColor;
 	align-items: center;
-}
+	padding: .5em;
 
-.card-todo {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	width: 80%;
-	margin: .5em;
-	padding: 1.5em;
-	border: 2px solid $borderColor;
-	border-radius: .25em;
-	position: relative;
-
-	.completed-box {
-		width: 30px;
-		aspect-ratio: 1/1;
-	}
-
-	.create-date {
-		position: absolute;
-		bottom: .5em;
-		right: 1.5em;
-		padding: .25em .5em;
-		background-color: white;
+	.card-todo {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		width: 80%;
+		margin: .5em;
+		padding: 1.5em;
+		border: 2px solid $borderColor;
 		border-radius: .25em;
-	}
+		position: relative;
 
-	.close-todo-btn {
-		align-self: flex-start;
-		padding: 0 .75em;
-	}
+		.checked-box {
+			width: 2rem;
+			aspect-ratio: 1/1;
+		}
 
-	.text {
-		width: 70%;
-		max-width: 400px;
-	}
+		.create-date {
+			position: absolute;
+			bottom: .5em;
+			right: 1.5em;
+			padding: .25em .5em;
+			background-color: white;
+			border-radius: .25em;
+		}
 
-	&.completed {
-		background-color: gray;
+		.close-todo-btn {
+			align-self: flex-start;
+			padding: 0 .75em;
+		}
 
 		.text {
-			text-decoration: line-through;
+			width: 70%;
+			max-width: 400px;
 		}
-	}
 
-	&.hidden {
-		display: none;
+		&.completed {
+			background-color: gray;
+
+			.text {
+				text-decoration: line-through;
+			}
+		}
+
+		&.hidden {
+			display: none;
+		}
 	}
 }

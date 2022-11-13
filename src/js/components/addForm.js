@@ -20,7 +20,7 @@ export const createAddFormComponent = onAddHandler => {
 
 	const form = createContainerComponent({
 		tagName: 'form',
-		classNam: 'add-form',
+		className: 'add-form',
 		children: [enterNewTextInput, addNewItemBtn]
 	})
 	return form
