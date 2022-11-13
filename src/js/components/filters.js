@@ -1,15 +1,12 @@
-import { uid } from '../utils/tools'
 import { createButtonComponent, createContainerComponent, createTextboxComponent } from './shared'
 
-const render = (props) => {
-	const { onChange: onFilterClick, className = 'filters' } = props
-
+export const createFilterFormComponent = filterHandler => {
 	const allFilterBtn = createButtonComponent({
 		className: 'btn show-all-btn',
 		value: 'Show All',
 		onClick: () => {
 			searchFilterInput.value = null
-			onFilterClick(item => item)
+			filterHandler(item => item)
 		}
 	})
 
@@ -18,7 +15,7 @@ const render = (props) => {
 		value: 'Show Completed',
 		onClick: () => {
 			searchFilterInput.value = null
-			onFilterClick(item => item.checked)
+			filterHandler(item => item.checked)
 		}
 	})
 
@@ -27,20 +24,13 @@ const render = (props) => {
 		placeholder: 'Search...',
 		onChange: (e) => {
 			const searchText = e.target.value
-			onFilterClick(item => item.text.includes(searchText))
+			filterHandler(item => item.text.includes(searchText))
 		}
 	})
 
-	const container = createContainerComponent({
-		id: uid(),
-		className,
+	const form = createContainerComponent({
+		className: 'filters',
 		children: [allFilterBtn, completedFilterBtn, searchFilterInput]
 	})
-
-	return container
-}
-
-export const createTodoFiltersComponent = (props) => {
-	const container = render(props)
-	return container
+	return form
 }

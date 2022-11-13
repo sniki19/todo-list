@@ -1,8 +1,7 @@
-import { isObject } from '../utils/tools'
+import { isObject } from '../utils'
 
-export const createStoreInstance = (name) => {
+const createStoreInstance = (name = 'default') => {
 	let source = []
-	console.warn('New store instance: ' + name)
 
 	return {
 		name: name,
@@ -50,15 +49,15 @@ export const createStoreInstance = (name) => {
 	}
 }
 
-// export const dataStore = (() => {
-// 	let instance = null
+export const dataStore = (() => {
+	let instance = null
 
-// 	return {
-//         getInstance: (name) => {
-//             if (!instance) {
-//                 instance = createInstance(name)
-//             }
-//             return instance
-//         }
-//     }
-// })()
+	return {
+        getInstance: (name) => {
+            if (!instance) {
+                instance = createStoreInstance(name)
+            }
+            return instance
+        }
+    }
+})()

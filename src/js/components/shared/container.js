@@ -1,6 +1,6 @@
-import { generateElement } from '../../utils/renderTemplates'
+import { renderElement } from '../../utils'
 
-const createElement = (tagName, id, className) => generateElement(tagName, {
+const createElement = (tagName, id, className) => renderElement(tagName, {
 	id,
 	className
 })

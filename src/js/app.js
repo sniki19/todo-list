@@ -1,37 +1,38 @@
-import { createActionLine1Component } from './components/actionLine1'
-import { createDataContainerComponent } from './components/dataContainer'
-/*import { updateCounters } from './components/todoCounters'*/
+import { createContainerComponent } from './components/shared'
+import {
+	createAddFormComponent,
+	createCounterComponent,
+	createDataContainerComponent,
+	createDeleteFormComponent,
+	createFilterFormComponent
+} from './components/todoComponents'
 import { store } from './services/dataApi'
 
 export function createAppComponent() {
-	// const [todoListContainer, createCard, deleteCards, setFilterForCards, deleteAllCards] = createDataContainerComponent({
-	// 	updateCounters
-	// })
+	const counters = createCounterComponent()
 
-	// const actionLine2 = createActionLine2Component({
-	// 	setFilterForCards
-	// })
-
-	// const actionLine1 = createActionLine1Component({
-	// 	updateCounters,
-	// 	deleteCards,
-	// 	createCard,
-	// 	deleteAllCards
-	// })
-
-
-
-
-	// const actionLine2 = createActionLine2Component()
-
-	const dataContainer = createDataContainerComponent()
+	const dataContainer = createDataContainerComponent(counters.updateValues)
 	dataContainer.loadData(store.getAll())
 
-	const actionLine1 = createActionLine1Component(dataContainer)
+	const deleteForm = createDeleteFormComponent(dataContainer.deleteAllCards, dataContainer.deleteCard)
+	const addForm = createAddFormComponent(dataContainer.addCard)
+
+	const actionLine1 = createContainerComponent({
+		id: 'actionLine1',
+		className: 'action-line',
+		children: [deleteForm, addForm]
+	})
+
+	const filterForm = createFilterFormComponent(dataContainer.displayFilter)
+
+	const actionLine2 = createContainerComponent({
+		id: 'actionLine2',
+		className: 'action-line',
+		children: [counters.element, filterForm]
+	})
 
 	const appComponent = document.createDocumentFragment()
-	appComponent.append(actionLine1.element, dataContainer.element)
+	appComponent.append(actionLine1, actionLine2, dataContainer.element)
 
 	return appComponent
 }
-

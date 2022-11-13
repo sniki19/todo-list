@@ -1,4 +1,4 @@
-export const generateElement = (tagName, options = {}) => {
+export const renderElement = (tagName, options = {}) => {
 	let element = document.createElement(tagName)
 
 	let customProperties = [

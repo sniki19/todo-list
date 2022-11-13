@@ -1,4 +1,4 @@
-import { store } from '../services/dataApi'
+import { generateNewTodoData, store } from '../services/dataApi'
 import { createContainerComponent } from './shared'
 import { createTodoItemComponent } from './todoItem'
 
@@ -9,82 +9,95 @@ const renderContainer = () => {
 	})
 
 	return container
-
-	// const { dataApi, updateCounters } = props
-
-	// return todoItemListContainerComponent({
-	// 	id: uid(),
-	// 	className: 'container-todos',
-	// 	data: dataApi.getAll(),
-	// 	onDeleteClick: (id) => {
-	// 		const result = dataApi.remove(id)
-	// 		updateCounters()
-	// 		console.log('onDeleteClick: ', JSON.stringify(dataApi.getAll()))
-	// 		return result
-	// 	},
-	// 	onCompleteClick: (id) => {
-	// 		const result = dataApi.update({
-	// 			id: id,
-	// 			checked: true
-	// 		})
-	// 		if (result) {
-	// 			updateCounters()
-	// 		}
-	// 		return result
-	// 	}
-	// })
 }
 
-// export const clear = (container) => {
-
-// }
-
-function loadData(dataList) {
-	const container = this.element
-
-	dataList.forEach(data => {
+function loadTodos(todoDataList) {
+	todoDataList.forEach(data => {
 		const item = createTodoItemComponent(data)
-		container.append(item)
+		this.append(item)
 	})
 }
 
-function deleteAllCards() {
-	const container = this.element
-
-	container.innerHTML = null
+function deleteAllTodos() {
+	store.clean()
+	this.innerHTML = null
 }
 
-function deleteCard(id) {
-	const container = this.element
-	const card = container.querySelector(`#${id}`)
-	card.remove()
-}
-
-function addCard(id) {
-	const container = this.element
+function deleteTodo(id) {
 	const data = store.getById(id)
+	if (data) {
+		store.delete(id)
+		const card = this.querySelector(`#${id}`)
+		card.remove()
+	}
+}
+
+function completeTodo(id) {
+	store.update({
+		id,
+		checked: true
+	})
+
+	const card = this.querySelector(`#${id}`)
+	card.classList.add('completed')
+	const checkbox = card.querySelector('.checked-box')
+	checkbox.disabled = true
+}
+
+function addTodo(text) {
+	const data = generateNewTodoData(text)
+	store.add(data)
 
 	const item = createTodoItemComponent(data)
-	container.append(item)
+	this.append(item)
 }
 
-export const createDataContainerComponent = () => {
+function displayFilter(filter) {
+	const showIds = store.getFiltered(filter).map(card => card.id)
+	const cards = this.querySelectorAll('.card-todo')
+	cards.forEach(card => {
+		if (showIds.includes(card.id)) {
+			card.classList.remove('hidden')
+		} else {
+			card.classList.add('hidden')
+		}
+	})
+}
+
+export const createDataContainerComponent = (updateCounters) => {
+	const element = renderContainer()
+
+	element.addEventListener('click', (e) => {
+		const target = e.target
+		const todo = target.closest('.card-todo')
+		const id = todo?.id
+
+		if (id && target.classList.contains('checked-box')) {
+			completeTodo.call(element, id)
+			updateCounters()
+		}
+
+		if (id && target.classList.contains('close-todo-btn')) {
+			deleteTodo.call(element, id)
+			updateCounters()
+		}
+	})
+
 	return {
-		element: renderContainer(),
-		loadData,
-		deleteAllCards,
-		deleteCard,
-		addCard
+		element,
+		loadData: loadTodos.bind(element),
+		deleteAllCards: () => {
+			deleteAllTodos.call(element)
+			updateCounters()
+		},
+		deleteCard: (...args) => {
+			deleteTodo.call(element, ...args)
+			updateCounters()
+		},
+		addCard: (...args) => {
+			addTodo.call(element, ...args)
+			updateCounters()
+		},
+		displayFilter: displayFilter.bind(element)
 	}
-
-	// const [todoListContainer, createCard, deleteCard, setFilterForCards, clean] = render({ dataApi, ...props })
-
-	// if (dataApi.getAll().length) {
-	// 	dataApi.getAll().forEach(data => {
-	// 		createCard(data)
-	// 	})
-	// }
-
-	// return [todoListContainer, createCard, deleteCard, setFilterForCards, clean]
-	return container
 }

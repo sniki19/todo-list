@@ -1,17 +1,17 @@
-import { uid } from '../utils/tools'
-import { createStoreInstance } from './dataStore'
+import { uid } from '../utils'
+import { dataStore } from './dataStore'
 
 const localStorageDataKey = 'TODO-LIST'
-const store = createStoreInstance('dataApiJs')
+const store = dataStore.getInstance('dataApiJs')
 
-export const generateNewTodoData = text => ({
+const generateNewTodoData = text => ({
 	id: uid(),
 	checked: false,
 	text: text,
 	date: new Date().toLocaleDateString()
 })
 
-export const initStore = () => {
+const initStore = () => {
 	const storageData = localStorage.getItem(localStorageDataKey)
 	const data = JSON.parse(storageData) || []
 
@@ -20,7 +20,7 @@ export const initStore = () => {
 	}
 }
 
-export const saveInStorage = () => {
+const saveInStorage = () => {
 	const data = store.getAll()
 
 	if (!data.length) {
@@ -32,5 +32,8 @@ export const saveInStorage = () => {
 }
 
 export {
-	store
+	store,
+	generateNewTodoData,
+	initStore,
+	saveInStorage
 }

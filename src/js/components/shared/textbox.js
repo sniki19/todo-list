@@ -1,6 +1,6 @@
-import { generateElement } from '../../utils/renderTemplates'
+import { renderElement } from '../../utils'
 
-const createElement = (className, value, placeholder, readOnly) => generateElement('input', {
+const createElement = (className, value, placeholder, readOnly) => renderElement('input', {
 	type: 'text',
 	value,
 	className,
